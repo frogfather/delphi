@@ -1833,6 +1833,8 @@ ldatamod.sledgrec.Active:=false;
 IF ldatamod.cledger.ChangeCount=0 THEN ldatamod.cledger.Refresh;
 end;
 
+{Everything below here is from an older reconcile model which took a user entered value for what the cleared balance should be 
+and generated a list of which items needed checked to achieve this}
 procedure TReconcileform.ediffChange(Sender: TObject);
 type
  TNumbers = set of Char;

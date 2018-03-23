@@ -1,0 +1,31 @@
+Procedure TBookingsform.wherearewe(x,y:integer);
+Var
+j,thisroom:Integer;
+done:Boolean;
+divproportion:double;
+divisions:integer;
+BEGIN
+  divisions:=(x-(dateleft+2))DIV divwidth;
+  mousedate:=dstart+divisions;
+  {the mouse time is the proportion of the current date}
+  {}
+  divproportion:=(x-((dateleft+2)+(divisions*divwidth)))/ divwidth;
+  mousetime:=floattodatetime(divproportion);
+
+  IF labelcount>0 THEN
+    BEGIN
+    j:=1;
+    thisroom:=roomstart;
+    mouseroom:=0;
+      REPEAT
+      IF (y>(gridtop+labelheight*(j-1)))AND(y<(gridtop+(labelheight*j)-5))THEN
+      mouseroom:=thisroom;
+      j:=j+1;
+      thisroom:=thisroom+1;
+      done:=(mouseroom>0)OR(j>labelcount);
+      UNTIL done;
+    END;
+Statusbar1.Panels[1].Text:='Room '+inttostr(mouseroom);
+Statusbar1.Panels[2].Text:='Date '+Formatdatetime('dd/mm/yyyy',mousedate);
+Statusbar1.Panels[3].Text:='Time '+Formatdatetime('hh:mm',mousetime);
+END;

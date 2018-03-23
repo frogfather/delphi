@@ -1,0 +1,67 @@
+Procedure Taccsalesform.Loadbuttons(level:Integer);
+Var
+i:Integer;
+Buttonname,buttonnumber:String;
+Buttonno:Integer;
+BEGIN
+IF Quickkeypanel.visible=true THEN
+  BEGIN
+  IF Accdatamoduleform.cdspicklist.Active=false THEN Accdatamoduleform.cdspicklist.Active:=true;
+  IF Accdatamoduleform.cdspicklist.changecount=0 THEN Accdatamoduleform.cdspicklist.Refresh;
+  currlevel:=level;
+  {prevlevel is the current level BEFORE we refilter}
+  IF currlevel=0 THEN prevlevel:=-1 ELSE
+  prevlevel:=accdatamoduleform.cdspicklistlevel.Value;
+
+  IF prevlevel=-1 THEN btnBack.Visible:=false ELSE btnBack.Visible:=true;
+  IF currlevel=0 THEN btnHome.visible:=false ELSE btnHome.visible:=true;
+  Accdatamoduleform.cdspicklist.Filter:='level = '''+inttostr(currlevel)+'''';
+  Accdatamoduleform.cdspicklist.Filtered:=true;
+  IF accdatamoduleform.cdspicklist.IsEmpty=false THEN
+  Statusbar2.SimpleText:='QK level '+inttostr(currlevel)+' '+accdatamoduleform.cdspicklistlevelname.Value
+  ELSE Statusbar2.SimpleText:='Level '+inttostr(currlevel)+' contains no active buttons';
+
+  {recursive procedure to replace the monstrosity below}
+  FOR i:=0 TO quickkeypanel.ControlCount-1 do
+    BEGIN
+    IF quickkeypanel.Controls[i] is TButton THEN
+      BEGIN
+      With quickkeypanel.Controls[i] as TButton do
+        BEGIN
+      	{get the name}
+      	Buttonname:=Name;
+      	Buttonnumber:=Buttonname;
+      	IF (length(buttonnumber)>6)AND(Buttonnumber[1]='B')AND(Buttonnumber[2]='u')  THEN
+          BEGIN
+      	  delete(buttonnumber,1,6);
+            Try
+            Buttonno:=strtoint(buttonnumber);
+            IF accdatamoduleform.cdspicklist.Locate('button',buttonno,[])=true THEN
+              BEGIN
+              Visible:=true;
+              Caption:=accdatamoduleform.cdspicklisttext.Value;
+              Font.Color:=stringtocolor(accdatamoduleform.cdspicklisttextcolour.asstring);
+              Color:=stringtocolor(accdatamoduleform.cdspicklistbuttoncolour.asstring);
+              END ELSE
+              BEGIN
+              IF (xstate<>'inqkset')AND(xstate<>'inqklevelsel')
+              AND(xstate<>'inqkprodsel')AND(xstate<>'inqkcaption')
+              AND(xstate<>'inqkcolsel') THEN
+              Visible:=false ELSE
+                BEGIN
+                Visible:=true;
+                Caption:='Not Set';
+                Font.Color:=clBlack;
+        	Color:=clButton;
+              	END;
+              END;
+            Except
+            {aaarrgghhh}
+            End;
+          END; {a numbered button}
+        END; {with quickkeypanel.controls[i] do}
+      END; {for i:= 0 to ...}
+    END;
+  END;
+END;
+
